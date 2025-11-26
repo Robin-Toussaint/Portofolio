@@ -8,7 +8,7 @@
   let difficulty = 'Nightmare';
 
   const DIFFICULTIES = {
-    // Make Easy clearly weaker: slow, high reaction time, large tracking error, slower ball
+    
     Easy: { paddleSpeed: 3, reaction: 0.6, error: 120, ballMult: 0.7 },
     Medium: { paddleSpeed: 7, reaction: 0.2, error: 30, ballMult: 0.95 },
     Hard: { paddleSpeed: 12, reaction: 0.08, error: 8, ballMult: 1.05 },
@@ -30,20 +30,20 @@
 
   function draw() {
     ctx.fillStyle = '#07090b'; ctx.fillRect(0,0,WIDTH,HEIGHT);
-    // paddles
+    
     ctx.fillStyle = '#eaeff6'; ctx.fillRect(left.x, left.y, left.w, left.h);
     ctx.fillRect(right.x, right.y, right.w, right.h);
-    // ball
+    
     ctx.beginPath(); ctx.fillStyle = '#eaeff6'; ctx.ellipse(ball.x+BALL/2, ball.y+BALL/2, BALL/2, BALL/2, 0, 0, Math.PI*2); ctx.fill();
-    // net
+    
     ctx.strokeStyle = '#6f7784'; ctx.beginPath(); ctx.moveTo(WIDTH/2,0); ctx.lineTo(WIDTH/2,HEIGHT); ctx.stroke();
-    // score
+    
     ctx.fillStyle = '#eaeff6'; ctx.font = '28px sans-serif'; ctx.textAlign = 'center'; ctx.fillText(`${scoreL} — ${scoreR}`, WIDTH/2, 36);
-    // status
+    
     ctx.font = '14px sans-serif'; ctx.textAlign = 'left'; ctx.fillStyle = '#9aa3b2'; ctx.fillText(`Difficulty: ${difficulty}`, 12, HEIGHT - 12);
   }
 
-  // predict ball y when reaching targetX by simulating bounces
+  
   function predictY(x, y, vx, vy, targetX) {
     let px = x, py = y, pvx = vx, pvy = vy;
     for (let i=0;i<5000;i++){
@@ -59,25 +59,25 @@
   function aiUpdate(dt) {
     const params = DIFFICULTIES[difficulty];
     const now = performance.now();
-    // left
+   
     if (now - lastLeftReact > params.reaction*1000) {
       const targ = predictY(ball.x, ball.y, ball.vx, ball.vy, left.x + left.w + 1);
       leftTarget = targ + (Math.random()*2-1)*params.error;
       lastLeftReact = now;
     }
-    // right
+    
     if (now - lastRightReact > params.reaction*1000) {
       const targ = predictY(ball.x, ball.y, ball.vx, ball.vy, right.x - BALL - 1);
       rightTarget = targ + (Math.random()*2-1)*params.error;
       lastRightReact = now;
     }
 
-    // move paddles
+    
     const ls = params.paddleSpeed, rs = params.paddleSpeed;
     if (left.y + left.h/2 < leftTarget - 6) left.y += ls; else if (left.y + left.h/2 > leftTarget + 6) left.y -= ls;
     if (right.y + right.h/2 < rightTarget - 6) right.y += rs; else if (right.y + right.h/2 > rightTarget + 6) right.y -= rs;
 
-    // clamp
+    
     left.y = Math.max(0, Math.min(HEIGHT - left.h, left.y));
     right.y = Math.max(0, Math.min(HEIGHT - right.h, right.y));
   }
@@ -85,9 +85,9 @@
   function step() {
     if (!paused && scoreL < WIN && scoreR < WIN) {
       ball.x += ball.vx; ball.y += ball.vy;
-      // bounce y
+      
       if (ball.y <= 0 || ball.y + BALL >= HEIGHT) ball.vy = -ball.vy;
-      // collisions
+      
       if (ball.x <= left.x + left.w && ball.x + BALL >= left.x && ball.y + BALL >= left.y && ball.y <= left.y + left.h) {
         ball.vx = Math.abs(ball.vx) * 1.03; const offset = ((ball.y + BALL/2) - (left.y + left.h/2)) / (left.h/2); ball.vy = Math.max(-25, Math.min(25, BASE_SPEED*offset));
       }
@@ -114,12 +114,12 @@
     requestAnimationFrame(step);
   }
 
-  // controls
+  
   window.addEventListener('keydown', (e) => {
     if (e.key === 'p' || e.code === 'Space') { paused = !paused; }
     if (e.key === 'r') { scoreL = 0; scoreR = 0; resetBall(1); }
     if (e.key === 'Escape') {
-      // Request parent to close the demo if inside an iframe, otherwise go back
+      
       if (window.parent && window.parent !== window) {
         window.parent.postMessage({ type: 'close-demo' }, '*');
       } else {
@@ -128,7 +128,7 @@
     }
   });
 
-  // settings modal
+  
   const settingsBtn = document.getElementById('settingsBtn');
   const modal = document.getElementById('settingsModal');
   const closeBtn = document.getElementById('closeSettings');
@@ -141,7 +141,7 @@
     resetBall(1); modal.setAttribute('aria-hidden','true');
   });
 
-  // also apply difficulty immediately when radio changes (more intuitive)
+  
   document.querySelectorAll('input[name="difficulty"]').forEach(r => {
     r.addEventListener('change', (ev) => {
       difficulty = ev.target.value;
@@ -152,7 +152,7 @@
 
   document.getElementById('restartBtn').addEventListener('click', () => { scoreL=0; scoreR=0; resetBall(1); });
   document.getElementById('backBtn').addEventListener('click', () => {
-    // If running inside an iframe, request parent to close the demo modal
+    
     if (window.parent && window.parent !== window) {
       window.parent.postMessage({ type: 'close-demo' }, '*');
     } else {
@@ -160,7 +160,7 @@
     }
   });
 
-  // init UI values
+  
   (function initUI(){ const radios = document.querySelectorAll('input[name="difficulty"]'); radios.forEach(r => { if (r.value===difficulty) r.checked=true }); })();
 
   resetBall(1);

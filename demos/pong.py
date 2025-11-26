@@ -25,7 +25,7 @@ WIN_SCORE = 7
 running = True
 paused = False
 
-# AI difficulty presets
+
 DIFFICULTIES = {
     'Easy':    {'paddle_speed': 5,  'reaction': 0.22, 'error': 40, 'ball_mult': 0.95},
     'Medium':  {'paddle_speed': 8,  'reaction': 0.12, 'error': 14, 'ball_mult': 1.00},
@@ -61,23 +61,23 @@ def show_winner(text):
     screen.blit(sub, ((WIDTH - sub.get_width()) // 2, HEIGHT // 2 + 20))
 
 def predict_ball_target(ball_rect, v_x, v_y, target_x):
-    # Simulate ball path to when it reaches target_x, accounting for bounces
+    
     x = float(ball_rect.x)
     y = float(ball_rect.y)
     vx = float(v_x)
     vy = float(v_y)
-    # iterate steps until cross target_x or timeout
+   
     for _ in range(2000):
         x += vx
         y += vy
-        # bounce
+        
         if y <= 0:
             y = -y
             vy = -vy
         if y + BALL_SIZE >= HEIGHT:
             y = 2*(HEIGHT - BALL_SIZE) - y
             vy = -vy
-        # check crossing
+       
         if vx < 0 and x <= target_x:
             return y + BALL_SIZE/2
         if vx > 0 and x + BALL_SIZE >= target_x:
@@ -85,20 +85,20 @@ def predict_ball_target(ball_rect, v_x, v_y, target_x):
     return HEIGHT / 2
 
 def ai_move(paddle, side, last_react, dt):
-    # side: 'left' or 'right'
+    
     params = DIFFICULTIES[difficulty]
-    # reaction handling: only update target after reaction interval
+    
     if pygame.time.get_ticks() - last_react[0] < params['reaction'] * 1000:
         return last_react[1]
 
-    # compute target by predicting ball
+    
     if side == 'left':
         target_x = left.right + 1
     else:
         target_x = right.left - BALL_SIZE - 1
 
     predicted = predict_ball_target(ball, vel_x, vel_y, target_x)
-    # add some tracking error
+   
     error = params['error']
     predicted += random.uniform(-error, error)
 
@@ -108,7 +108,7 @@ def ai_move(paddle, side, last_react, dt):
 
 reset_ball(1)
 
-# store last reaction times and targets for both AIs
+
 left_react = [0, HEIGHT/2]
 right_react = [0, HEIGHT/2]
 
@@ -130,7 +130,7 @@ while running:
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             mx, my = event.pos
-            # No clickable UI in-game; settings handled before start.
+            
 
     if not paused and score_left < WIN_SCORE and score_right < WIN_SCORE:
         ball.x += vel_x
@@ -139,7 +139,7 @@ while running:
         if ball.top <= 0 or ball.bottom >= HEIGHT:
             vel_y = -vel_y
 
-        # when collide with left or right paddles, reflect and speed slightly
+        
         if ball.colliderect(left):
             vel_x = abs(vel_x) * 1.03
             offset = (ball.centery - left.centery) / (PADDLE_HEIGHT / 2)
@@ -156,27 +156,27 @@ while running:
             score_left += 1
             reset_ball(-1)
 
-        # AI decisions
+       
         lpredict = ai_move(left, 'left', left_react, dt)
         rpredict = ai_move(right, 'right', right_react, dt)
 
-        # move paddles toward predicted positions
+        
         lp_speed = DIFFICULTIES[difficulty]['paddle_speed']
         rp_speed = DIFFICULTIES[difficulty]['paddle_speed']
 
-        # Left paddle movement
+        
         if left.centery < lpredict - 6:
             left.y += lp_speed
         elif left.centery > lpredict + 6:
             left.y -= lp_speed
 
-        # Right paddle movement
+        
         if right.centery < rpredict - 6:
             right.y += rp_speed
         elif right.centery > rpredict + 6:
             right.y -= rp_speed
 
-        # keep paddles inside screen
+        
         if left.top < 0:
             left.top = 0
         if left.bottom > HEIGHT:
@@ -188,7 +188,7 @@ while running:
 
     draw()
 
-    # Overlay when paused
+   
     if paused and score_left < WIN_SCORE and score_right < WIN_SCORE:
         pause_surf = BIGFONT.render("PAUSE", True, (255, 255, 255))
         screen.blit(pause_surf, ((WIDTH - pause_surf.get_width()) // 2, (HEIGHT - pause_surf.get_height()) // 2))

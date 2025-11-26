@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Canvas</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    html,body{height:100%;margin:0}
+    canvas{display:block;background:linear-gradient(#e8f1ff,#fff)}
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <script>
+    const c=document.getElementById('c'); const ctx=c.getContext('2d');
+    function resize(){c.width=innerWidth; c.height=innerHeight}
+    addEventListener('resize', resize); resize();
+    const ball={x:100,y:100,dx:3,dy:2,r:24}
+    function loop(){
+      ctx.clearRect(0,0,c.width,c.height);
+      ctx.beginPath(); ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2); ctx.fillStyle='#1abc9c'; ctx.fill();
+      ball.x+=ball.dx; ball.y+=ball.dy;
+      if(ball.x<ball.r||ball.x>c.width-ball.r) ball.dx*=-1;
+      if(ball.y<ball.r||ball.y>c.height-ball.r) ball.dy*=-1;
+      requestAnimationFrame(loop);
+    }
+    loop();
+  </script>
+</body>
+</html>

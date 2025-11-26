@@ -215,14 +215,14 @@ body {
     padding-bottom: 8px;
     flex-wrap: nowrap;
     width: 100%;
-    padding-right: 48px; /* avoid last card sticking to edge */
+    padding-right: 28px; /* avoid last card sticking to edge */
     -webkit-overflow-scrolling: touch;
 }
 
 
 .skill-card {
     background: var(--white);
-    padding: 32px;
+    padding: 22px;
     border-radius: 12px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -235,8 +235,8 @@ body {
 }
 
 .skills-grid .skill-card {
-    flex: 0 0 220px;
-    min-width: 200px;
+    flex: 0 0 180px;
+    min-width: 160px;
 }
 
 .skill-header {
@@ -248,8 +248,8 @@ body {
 }
 
 .skill-icon {
-    width: 80px;
-    height: 80px;
+    width: 64px;
+    height: 64px;
     flex-shrink: 0;
     display: block;
     object-fit: contain;
@@ -269,7 +269,7 @@ body {
 
 .progress-container {
     background-color: #e0e0e0;
-    height: 14px;
+    height: 12px;
     border-radius: 10px;
     overflow: hidden;
     margin-bottom: 10px;
@@ -285,7 +285,7 @@ body {
 
 .percentage {
     display: block;
-    font-size: 1.15em;
+    font-size: 1.05em;
     font-weight: bold;
     color: var(--secondary-color);
 }

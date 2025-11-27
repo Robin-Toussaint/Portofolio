@@ -21,6 +21,11 @@
   let scoreL = 0, scoreR = 0; const WIN = 7;
   let paused = false;
   let lastLeftReact = 0, lastRightReact = 0; let leftTarget = HEIGHT/2, rightTarget = HEIGHT/2;
+  // Right paddle human-control state
+  let rightControlled = false;
+  let rightMoveUp = false;
+  let rightMoveDown = false;
+  const humanPaddleSpeed = 400; // px/s movement when human-controlled
 
   function resetBall(dir = 1) {
     ball.x = (WIDTH - BALL) / 2; ball.y = (HEIGHT - BALL) / 2;
@@ -61,11 +66,14 @@
     const now = performance.now();
     // If we're in Nightmare mode, make the bots near-perfect: instant position to predicted intercept
     if (difficulty === 'Nightmare') {
-      // Predict for left and right and snap paddle centers to the intercept point
+      // Predict for left and snap paddle center to the intercept point
       const pl = predictY(ball.x, ball.y, ball.vx, ball.vy, left.x + left.w + 1);
-      const pr = predictY(ball.x, ball.y, ball.vx, ball.vy, right.x - BALL - 1);
       left.y = Math.max(0, Math.min(HEIGHT - left.h, pl - left.h/2));
-      right.y = Math.max(0, Math.min(HEIGHT - right.h, pr - right.h/2));
+      // Only move right paddle if it's still AI-controlled
+      if (!rightControlled) {
+        const pr = predictY(ball.x, ball.y, ball.vx, ball.vy, right.x - BALL - 1);
+        right.y = Math.max(0, Math.min(HEIGHT - right.h, pr - right.h/2));
+      }
       return;
     }
 
@@ -75,16 +83,20 @@
       lastLeftReact = now;
     }
     
-    if (now - lastRightReact > params.reaction*1000) {
-      const targ = predictY(ball.x, ball.y, ball.vx, ball.vy, right.x - BALL - 1);
-      rightTarget = targ + (Math.random()*2-1)*params.error;
-      lastRightReact = now;
+    if (!rightControlled) {
+      if (now - lastRightReact > params.reaction*1000) {
+        const targ = predictY(ball.x, ball.y, ball.vx, ball.vy, right.x - BALL - 1);
+        rightTarget = targ + (Math.random()*2-1)*params.error;
+        lastRightReact = now;
+      }
     }
 
     
     const ls = params.paddleSpeed, rs = params.paddleSpeed;
     if (left.y + left.h/2 < leftTarget - 6) left.y += ls; else if (left.y + left.h/2 > leftTarget + 6) left.y -= ls;
-    if (right.y + right.h/2 < rightTarget - 6) right.y += rs; else if (right.y + right.h/2 > rightTarget + 6) right.y -= rs;
+    if (!rightControlled) {
+      if (right.y + right.h/2 < rightTarget - 6) right.y += rs; else if (right.y + right.h/2 > rightTarget + 6) right.y -= rs;
+    }
 
     
     left.y = Math.max(0, Math.min(HEIGHT - left.h, left.y));
@@ -108,6 +120,14 @@
       if (ball.x + BALL >= WIDTH) { scoreL++; resetBall(-1); }
 
       aiUpdate(1/60);
+
+      // If the right paddle is human-controlled, apply keyboard movement
+      if (rightControlled) {
+        const move = humanPaddleSpeed * (1/60);
+        if (rightMoveUp) right.y -= move;
+        if (rightMoveDown) right.y += move;
+        right.y = Math.max(0, Math.min(HEIGHT - right.h, right.y));
+      }
     }
     draw();
     if (paused && scoreL < WIN && scoreR < WIN) {
@@ -135,6 +155,18 @@
         window.history.back();
       }
     }
+  });
+
+  // Player keyboard handlers for right paddle control
+  window.addEventListener('keydown', (e) => {
+    if (!rightControlled) return;
+    if (e.key === 'ArrowUp') { rightMoveUp = true; e.preventDefault(); }
+    if (e.key === 'ArrowDown') { rightMoveDown = true; e.preventDefault(); }
+  });
+  window.addEventListener('keyup', (e) => {
+    if (!rightControlled) return;
+    if (e.key === 'ArrowUp') { rightMoveUp = false; e.preventDefault(); }
+    if (e.key === 'ArrowDown') { rightMoveDown = false; e.preventDefault(); }
   });
 
   
@@ -168,6 +200,19 @@
       window.history.back();
     }
   });
+
+  // Take-control toggle button for right paddle
+  const takeBtn = document.getElementById('takeControlBtn');
+  if (takeBtn) {
+    const setBtnText = () => { takeBtn.textContent = rightControlled ? 'Relâcher contrôle (Droite)' : 'Prendre contrôle (Droite)'; };
+    setBtnText();
+    takeBtn.addEventListener('click', () => {
+      rightControlled = !rightControlled;
+      // reset any AI state if handing back to bots
+      if (!rightControlled) { lastRightReact = performance.now(); rightTarget = HEIGHT/2; rightMoveUp = rightMoveDown = false; }
+      setBtnText();
+    });
+  }
 
   
   (function initUI(){ const radios = document.querySelectorAll('input[name="difficulty"]'); radios.forEach(r => { if (r.value===difficulty) r.checked=true }); })();

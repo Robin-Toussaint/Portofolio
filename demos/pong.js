@@ -59,7 +59,16 @@
   function aiUpdate(dt) {
     const params = DIFFICULTIES[difficulty];
     const now = performance.now();
-   
+    // If we're in Nightmare mode, make the bots near-perfect: instant position to predicted intercept
+    if (difficulty === 'Nightmare') {
+      // Predict for left and right and snap paddle centers to the intercept point
+      const pl = predictY(ball.x, ball.y, ball.vx, ball.vy, left.x + left.w + 1);
+      const pr = predictY(ball.x, ball.y, ball.vx, ball.vy, right.x - BALL - 1);
+      left.y = Math.max(0, Math.min(HEIGHT - left.h, pl - left.h/2));
+      right.y = Math.max(0, Math.min(HEIGHT - right.h, pr - right.h/2));
+      return;
+    }
+
     if (now - lastLeftReact > params.reaction*1000) {
       const targ = predictY(ball.x, ball.y, ball.vx, ball.vy, left.x + left.w + 1);
       leftTarget = targ + (Math.random()*2-1)*params.error;

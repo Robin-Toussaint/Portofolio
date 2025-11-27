@@ -313,6 +313,8 @@ body.dark-theme .theme-toggle { background: rgba(255,255,255,0.03); }
 /* Prevent image dragging (UI) */
 img {
     -webkit-user-drag: none;
+    -moz-user-drag: none;
+    -ms-user-drag: none;
     user-drag: none;
     -webkit-touch-callout: none; /* disable callout, iOS */
 }

@@ -1,14 +1,15 @@
 :root{--bg:#0f1114;--panel:#151719;--text:#e9eef6;--muted:#9aa3b2}
 *{box-sizing:border-box;font-family:Inter,Segoe UI,Arial,sans-serif}
-body{margin:0;background:linear-gradient(180deg,#071627,#0f1220);color:var(--text);display:flex;align-items:center;justify-content:center;min-height:100vh}
-.wrap{width:960px;max-width:96%;padding:18px}
+body{margin:0;background:linear-gradient(180deg,#071627,#0f1220);color:var(--text);display:flex;align-items:flex-start;justify-content:center;min-height:100vh}
+.wrap{width:960px;max-width:96%;padding:12px}
 h1{margin:0 0 8px;font-size:24px}
 .lead{margin:0 0 12px;color:var(--muted)}
 .controls{display:flex;gap:8px;margin-bottom:10px}
 .controls button{background:#2b6cff;color:white;border:0;padding:8px 12px;border-radius:6px;cursor:pointer}
 .controls button#backBtn{background:#444}
-.canvas-wrap{background:var(--panel);padding:12px;border-radius:8px}
-canvas{display:block;background:#0b0d10;border-radius:4px;max-width:100%;height:auto}
+.canvas-wrap{background:var(--panel);padding:10px;border-radius:8px}
+/* Make the canvas responsive and cap its height to avoid page vertical scrollbars */
+canvas{display:block;background:#0b0d10;border-radius:4px;max-width:100%;height:auto;max-height:calc(100vh - 220px);width:100%}
 .hint{margin-top:10px;color:var(--muted);font-size:13px}
 .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.5)}
 .modal[aria-hidden="false"]{display:flex}
